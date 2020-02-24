@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 
-namespace SpotifyMusicBot
+namespace SpotifyPlaylistManager
 {
-    internal class songItem
+    internal class SongItem
     {
         public string Artist { get; set; }
         public string Label { get; set; }
-        public Form1.Months ReleaseDate { get; set; }
+        public MainForm.Months ReleaseDate { get; set; }
         public List<string> TrackList { get; set; }
 
-        public songItem(string artist, string label, Form1.Months releaseDate, List<string> trackList)
+        public SongItem(string artist, string label, MainForm.Months releaseDate, List<string> trackList)
         {
             Artist = artist;
             Label = label;

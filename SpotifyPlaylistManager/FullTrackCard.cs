@@ -1,6 +1,6 @@
 ﻿using System.Windows.Forms;
 
-namespace SpotifyMusicBot
+namespace SpotifyPlaylistManager
 {
     public partial class FullTrackCard : UserControl
     {

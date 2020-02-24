@@ -7,7 +7,7 @@ using System.Windows.Forms;
 using static System.String;
 using Cursor = System.Windows.Forms.Cursor;
 
-namespace SpotifyMusicBot
+namespace SpotifyPlaylistManager
 {
     public partial class TrackCard : UserControl
     {
@@ -48,7 +48,7 @@ namespace SpotifyMusicBot
                 ReleaseDate = { Text = _track.Album.ReleaseDate },
                 Artist = { Text = Join(", ", artistNameList) },
                 Popularity = { Value1 = _track.Popularity },
-                label1 = { Text = Join(", ", Form1.GetGenres(_track)) }
+                label1 = { Text = Join(", ", MainForm.GetGenres(_track)) }
             };
             fullTrackCard.pictureBox1.Load(AlbumImage.ImageLocation);
             radPopupContainer1.Controls.Add(fullTrackCard);

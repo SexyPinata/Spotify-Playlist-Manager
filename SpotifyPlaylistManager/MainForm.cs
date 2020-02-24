@@ -13,9 +13,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace SpotifyMusicBot
+namespace SpotifyPlaylistManager
 {
-    public partial class Form1 : Telerik.WinControls.UI.RadForm
+    public partial class MainForm : Telerik.WinControls.UI.RadForm
     {
         public static SpotifyWebAPI Api = new SpotifyWebAPI();
 
@@ -23,26 +23,26 @@ namespace SpotifyMusicBot
 
         private const string ClientId = "0b77d4294b49451bba2571fa3d09ae46";
 
-        private const string HTML_TAG_PATTERN = "<.*?>";
+        private const string HtmlTagPattern = "<.*?>";
 
-        private const string PATTERN = @"\((.*?)\)";
+        private const string Pattern = @"\((.*?)\)";
 
-        private const string re1 = "(\\d+)";
+        private const string Re1 = "(\\d+)";
 
         // Integer Number 1
-        private const string re2 = "(.)";
+        private const string Re2 = "(.)";
 
         // Any Single Character 1
-        private const string re3 = "(\\s+)";
+        private const string Re3 = "(\\s+)";
 
-        private static readonly Regex r = new Regex(re1 + re2 + re3, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        private static readonly Regex R = new Regex(Re1 + Re2 + Re3, RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
-        private static List<songItem> songItems;
+        private static List<SongItem> _songItems;
 
         // White Space 1
-        private List<FullTrack> trackList = new List<FullTrack>();
+        private List<FullTrack> _trackList = new List<FullTrack>();
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
         }
@@ -52,35 +52,35 @@ namespace SpotifyMusicBot
         public static async void Feed()
         {
             var feed = await FeedReader.ReadAsync("https://www.hardstyle-releases.com/feed/").ConfigureAwait(false);
-            songItems = new List<songItem>();
+            _songItems = new List<SongItem>();
             // ...
             foreach (var item in feed.Items)
             {
-                var str = StripString(item.Content, HTML_TAG_PATTERN)
+                var str = StripString(item.Content, HtmlTagPattern)
                     .Replace("The post " + item.Title + " appeared first on Hardstyle-Releases.com.",
                         "");
                 var result = Regex.Split(str, "\r\n|\r|\n").ToList();
                 if (result.Count > 4)
                 {
-                    var list = result.Skip(2).Select(VARIABLE => Regex.Replace(VARIABLE, re1 + re2 + re3, "")).ToList();
-                    songItem trackItem = new songItem(StripString(item.Title, PATTERN), result[0].Replace("Label: ", ""), Helper.GetMonth(result[1].Replace("Release Date: ", "")), list);
+                    var list = result.Skip(2).Select(variable => Regex.Replace(variable, Re1 + Re2 + Re3, "")).ToList();
+                    SongItem trackItem = new SongItem(StripString(item.Title, Pattern), result[0].Replace("Label: ", ""), Helper.GetMonth(result[1].Replace("Release Date: ", "")), list);
 
-                    songItems.Add(trackItem);
+                    _songItems.Add(trackItem);
                 }
                 if (result.Count < 4)
                 {
                     var x = item.Title.Split('–');
-                    var list = new List<string> {Regex.Replace(x[1], re1 + re2 + re3, "")
+                    var list = new List<string> {Regex.Replace(x[1], Re1 + Re2 + Re3, "")
                     };
-                    songItem trackItem = new songItem(StripString(x[0], PATTERN), result[0].Replace("Label: ", ""), Helper.GetMonth(result[1].Replace("Release Date: ", "")), list);
-                    songItems.Add(trackItem);
+                    SongItem trackItem = new SongItem(StripString(x[0], Pattern), result[0].Replace("Label: ", ""), Helper.GetMonth(result[1].Replace("Release Date: ", "")), list);
+                    _songItems.Add(trackItem);
                 }
                 else
                 {
-                    var list = new List<string> {Regex.Replace(result[2], re1 + re2 + re3, "")
+                    var list = new List<string> {Regex.Replace(result[2], Re1 + Re2 + Re3, "")
                     };
-                    songItem trackItem = new songItem(StripString(item.Title, PATTERN), result[0].Replace("Label: ", ""), Helper.GetMonth(result[1].Replace("Release Date: ", "")), list);
-                    songItems.Add(trackItem);
+                    SongItem trackItem = new SongItem(StripString(item.Title, Pattern), result[0].Replace("Label: ", ""), Helper.GetMonth(result[1].Replace("Release Date: ", "")), list);
+                    _songItems.Add(trackItem);
                 }
 
                 //                Console.WriteLine(StripString(item.Title, PATTERN) + ":\n" + StripString(item.Content, HTML_TAG_PATTERN)
@@ -172,7 +172,7 @@ namespace SpotifyMusicBot
 
         private void BtnCreateAndSetPlaylists_Click(object sender, EventArgs e)
         {
-            jsonHandler.SetMonthPlaylistId();
+            JsonHandler.SetMonthPlaylistId();
         }
 
         private async void Button1_Click(object sender, EventArgs e)
@@ -235,10 +235,10 @@ namespace SpotifyMusicBot
 
         private async Task PopulateTask()
         {
-            trackList = new List<FullTrack>();
+            _trackList = new List<FullTrack>();
             TackListPanel.Controls.Clear();
             List<Task> listOfTasks = new List<Task>();
-            foreach (var songItem in songItems)
+            foreach (var songItem in _songItems)
             {
                 foreach (var track in songItem.TrackList)
                 {
@@ -252,10 +252,10 @@ namespace SpotifyMusicBot
                         var first = fullTrack.Album.Images.FirstOrDefault();
 
                         if (first != null) Console.WriteLine(first.Height + " " + first.Width);
-                        if (!TrackDupe(jsonHandler.GetMonthPlaylistId(songItem.ReleaseDate),
+                        if (!TrackDupe(JsonHandler.GetMonthPlaylistId(songItem.ReleaseDate),
                             fullTrack.Uri))
                         {
-                            trackList.Add(fullTrack);
+                            _trackList.Add(fullTrack);
                             //Api.AddPlaylistTrack(jsonHandler.GetMonthPlaylistId(songItem.ReleaseDate),
                             //    fullTrack.Uri);
                         }

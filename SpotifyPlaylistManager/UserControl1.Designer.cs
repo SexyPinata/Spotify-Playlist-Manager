@@ -1,4 +1,4 @@
-﻿namespace SpotifyMusicBot
+﻿namespace SpotifyPlaylistManager
 {
     partial class UserControl1
     {

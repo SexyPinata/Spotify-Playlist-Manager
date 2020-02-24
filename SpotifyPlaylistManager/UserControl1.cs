@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace SpotifyMusicBot
+namespace SpotifyPlaylistManager
 {
     public partial class UserControl1 : UserControl
     {

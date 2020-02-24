@@ -1,4 +1,4 @@
-﻿namespace SpotifyMusicBot
+﻿namespace SpotifyPlaylistManager
 {
     public struct PlaylistMonthId
     {
