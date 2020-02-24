@@ -4,51 +4,51 @@
     {
         public static Form1.Months GetMonth(string releaseDate)
         {
-            if (releaseDate.Contains(Form1.Months.January.ToString()))
+            if (releaseDate.Contains(nameof(Form1.Months.January)))
             {
                 return Form1.Months.January;
             }
-            if (releaseDate.Contains(Form1.Months.February.ToString()))
+            if (releaseDate.Contains(nameof(Form1.Months.February)))
             {
                 return Form1.Months.February;
             }
-            if (releaseDate.Contains(Form1.Months.Mars.ToString()))
+            if (releaseDate.Contains(nameof(Form1.Months.Mars)))
             {
                 return Form1.Months.Mars;
             }
-            if (releaseDate.Contains(Form1.Months.April.ToString()))
+            if (releaseDate.Contains(nameof(Form1.Months.April)))
             {
                 return Form1.Months.April;
             }
-            if (releaseDate.Contains(Form1.Months.May.ToString()))
+            if (releaseDate.Contains(nameof(Form1.Months.May)))
             {
                 return Form1.Months.May;
             }
-            if (releaseDate.Contains(Form1.Months.June.ToString()))
+            if (releaseDate.Contains(nameof(Form1.Months.June)))
             {
                 return Form1.Months.June;
             }
-            if (releaseDate.Contains(Form1.Months.July.ToString()))
+            if (releaseDate.Contains(nameof(Form1.Months.July)))
             {
                 return Form1.Months.July;
             }
-            if (releaseDate.Contains(Form1.Months.August.ToString()))
+            if (releaseDate.Contains(nameof(Form1.Months.August)))
             {
                 return Form1.Months.August;
             }
-            if (releaseDate.Contains(Form1.Months.September.ToString()))
+            if (releaseDate.Contains(nameof(Form1.Months.September)))
             {
                 return Form1.Months.September;
             }
-            if (releaseDate.Contains(Form1.Months.October.ToString()))
+            if (releaseDate.Contains(nameof(Form1.Months.October)))
             {
                 return Form1.Months.October;
             }
-            if (releaseDate.Contains(Form1.Months.November.ToString()))
+            if (releaseDate.Contains(nameof(Form1.Months.November)))
             {
                 return Form1.Months.November;
             }
-            if (releaseDate.Contains(Form1.Months.December.ToString()))
+            if (releaseDate.Contains(nameof(Form1.Months.December)))
             {
                 return Form1.Months.December;
             }
