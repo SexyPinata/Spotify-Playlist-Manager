@@ -23,7 +23,7 @@ namespace SpotifyPlaylistManager
         {
             var s = Assembly.GetExecutingAssembly().Location;
             var directory = Path.GetDirectoryName(s);
-            var playlistMonthIds = (from object month in Enum.GetValues(typeof(MainForm.Months)) let playlist = MainForm.NewPlaylist(MainForm.UserId, "Hardstyle " + month.ToString()) select new PlaylistMonthId { Month = Convert.ToInt32(month), PlaylistId = playlist.Id }).ToList();
+            var playlistMonthIds = (from object month in Enum.GetValues(typeof(MainForm.Months)) let playlist = SpotifyEasyApiHandler.NewPlaylist(SpotifyEasyApiHandler.UserId, "Hardstyle " + month.ToString()) select new PlaylistMonthId { Month = Convert.ToInt32(month), PlaylistId = playlist.Id }).ToList();
             using var file = File.CreateText(directory + @"\PlaylistMonths.json");
             var serializer = new JsonSerializer();
             serializer.Serialize(file, playlistMonthIds);

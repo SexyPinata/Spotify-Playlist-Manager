@@ -42,7 +42,7 @@ namespace SpotifyPlaylistManager
                 ReleaseDate = { Text = _track.Album.ReleaseDate },
                 Artist = { Text = Join(", ", artistNameList) },
                 Popularity = { Value1 = _track.Popularity },
-                label1 = { Text = Join(", ", MainForm.GetGenres(_track)) }
+                label1 = { Text = Join(", ", SpotifyEasyApiHandler.GetGenres(_track)) }
             };
             fullTrackCard.pictureBox1.Load(AlbumImage.ImageLocation);
             radPopupContainer1.Controls.Add(fullTrackCard);

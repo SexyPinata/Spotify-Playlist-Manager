@@ -99,6 +99,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="songItem.cs" />
+    <Compile Include="SpotifyEasyApiHandler.cs" />
     <Compile Include="TrackCard.cs">
       <SubType>UserControl</SubType>
     </Compile>

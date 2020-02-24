@@ -11,18 +11,13 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
 using Image = SpotifyAPI.Web.Models.Image;
 
 namespace SpotifyPlaylistManager
 {
     public partial class MainForm : Telerik.WinControls.UI.RadForm
     {
-        public static SpotifyWebAPI Api = new SpotifyWebAPI();
-
-        public static string UserId;
-
-        private const string ClientId = "0b77d4294b49451bba2571fa3d09ae46";
-
         private static List<SongItem> _songItems;
 
         // White Space 1
@@ -34,60 +29,6 @@ namespace SpotifyPlaylistManager
         }
 
         public enum Months { None, January, February, Mars, April, May, June, July, August, September, October, November, December };
-
-        public static async Task<FullTrack> GetFullTrackAsync(string searchTerm)
-        {
-            var item = await Api.SearchItemsAsync(searchTerm.Replace("#", ""), SearchType.All).ConfigureAwait(false);
-            Console.WriteLine(@"Searched for: " + searchTerm);
-            try
-            {
-                item.Tracks.Items.Sort();
-                Console.WriteLine(item.Tracks.Items.FirstOrDefault()?.Name);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            return
-                item.Tracks.Items.FirstOrDefault(); //How many results are there in total? NOTE: item.Tracks = item.Artists = null
-        }
-
-        public static List<string> GetGenres(FullTrack track)
-        {
-            FullArtist fullArtist = Api.GetArtist(track.Artists.FirstOrDefault()?.Id);
-            return fullArtist.Genres;
-        }
-
-        public static FullPlaylist NewPlaylist(string userId, string playlistName)
-        {
-            var playlist = Api.CreatePlaylist(userId, playlistName);
-            return !playlist.HasError() ? playlist : null;
-        }
-
-        public static void SpotifyInit()
-        {
-            //  SpotifyAPI.Web.Auth.ImplictGrantAuth
-            var auth =
-                new ImplicitGrantAuth(ClientId, "http://localhost:8080", "http://localhost:8080",
-                    Scope.PlaylistReadCollaborative);
-            auth.AuthReceived += (_, payload) =>
-            {
-                auth.Stop(); // `sender` is also the auth instance
-                Api = new SpotifyWebAPI { TokenType = payload.TokenType, AccessToken = payload.AccessToken };
-                // Do requests with API client
-                var profile = Api.GetPrivateProfile();
-                UserId = profile.Id;
-            };
-            auth.Start(); // Starts an internal HTTP Server
-
-            auth.OpenBrowser();
-        }
-
-        public static bool TrackDupe(string playlistId, string trackId)
-        {
-            var playlist = Api.GetPlaylistTracks(playlistId);
-            return playlist.Items.Count > 0 && playlist.Items.Any(playlistTrack => playlistTrack.Track.Id.Equals(trackId));
-        }
 
         public Task CreateTrackCardPanelAsync(PlaylistTrack track)
         {
@@ -131,7 +72,7 @@ namespace SpotifyPlaylistManager
         private async void MainForm_Load(object sender, EventArgs e)
         {
             _songItems = await GenreReleaseHandler.Feed().ConfigureAwait(false);
-            SpotifyInit();
+            SpotifyEasyApiHandler.SpotifyInit();
         }
 
         private void PlaylistButton_Click(object sender, EventArgs e)
@@ -141,7 +82,7 @@ namespace SpotifyPlaylistManager
 
         private void PopulatePlaylists()
         {
-            var playlists = Api.GetUserPlaylists(UserId, 50);
+            var playlists = SpotifyEasyApiHandler.GetCurrentUsersPlaylists();
             if (playlists == null) return;
             foreach (var playlist in playlists.Items)
             {
@@ -175,7 +116,7 @@ namespace SpotifyPlaylistManager
                     Console.WriteLine(@"Full track name: " + track);
                     Console.WriteLine(@"Full Artist name: " + songItem.Artist);
                     var fullTrack =
-                        await GetFullTrackAsync(track.Replace("(Ft.", "").Replace("(With ", "") + " " +
+                        await SpotifyEasyApiHandler.GetFullTrackAsync(track.Replace("(Ft.", "").Replace("(With ", "") + " " +
                                                 songItem.Artist.Replace("&", ",").Replace("(Ft.", ""))
                             .ConfigureAwait(true);
 
@@ -185,7 +126,7 @@ namespace SpotifyPlaylistManager
                         var first = fullTrack.Album.Images.FirstOrDefault();
 
                         if (first != null) Console.WriteLine(first.Height + @" " + first.Width);
-                        if (!TrackDupe(JsonHandler.GetMonthPlaylistId(songItem.ReleaseDate),
+                        if (!SpotifyEasyApiHandler.TrackDupe(JsonHandler.GetMonthPlaylistId(songItem.ReleaseDate),
                             fullTrack.Uri))
                         {
                             TrackList.Add(fullTrack);
@@ -215,7 +156,7 @@ namespace SpotifyPlaylistManager
         {
             var plSender = sender as Label;
             var playlistId = plSender?.Name;
-            var playlist = await Api.GetPlaylistAsync(playlistId).ConfigureAwait(true);
+            var playlist = await SpotifyEasyApiHandler.Api.GetPlaylistAsync(playlistId).ConfigureAwait(true);
             await DisplayPlaylistsSongsAsync(playlist).ConfigureAwait(false);
         }
 
