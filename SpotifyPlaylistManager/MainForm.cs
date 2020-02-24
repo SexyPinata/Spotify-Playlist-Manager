@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Image = SpotifyAPI.Web.Models.Image;
 
 namespace SpotifyPlaylistManager
 {
@@ -21,20 +22,6 @@ namespace SpotifyPlaylistManager
         public static string UserId;
 
         private const string ClientId = "0b77d4294b49451bba2571fa3d09ae46";
-
-        private const string HtmlTagPattern = "<.*?>";
-
-        private const string Pattern = @"\((.*?)\)";
-
-        private const string Re1 = "(\\d+)";
-
-        // Integer Number 1
-        private const string Re2 = "(.)";
-
-        // Any Single Character 1
-        private const string Re3 = "(\\s+)";
-
-        private static readonly Regex R = new Regex(Re1 + Re2 + Re3, RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
         private static List<SongItem> _songItems;
 
@@ -47,46 +34,6 @@ namespace SpotifyPlaylistManager
         }
 
         public enum Months { None, January, February, Mars, April, May, June, July, August, September, October, November, December };
-
-        public static async void Feed()
-        {
-            var feed = await FeedReader.ReadAsync("https://www.hardstyle-releases.com/feed/").ConfigureAwait(false);
-            _songItems = new List<SongItem>();
-            // ...
-            foreach (var item in feed.Items)
-            {
-                var str = StripString(item.Content, HtmlTagPattern)
-                    .Replace("The post " + item.Title + " appeared first on Hardstyle-Releases.com.",
-                        "");
-                var result = Regex.Split(str, "\r\n|\r|\n").ToList();
-                if (result.Count > 4)
-                {
-                    var list = result.Skip(2).Select(variable => Regex.Replace(variable, Re1 + Re2 + Re3, "")).ToList();
-                    SongItem trackItem = new SongItem(StripString(item.Title, Pattern), result[0].Replace("Label: ", ""), Helper.GetMonth(result[1].Replace("Release Date: ", "")), list);
-
-                    _songItems.Add(trackItem);
-                }
-                if (result.Count < 4)
-                {
-                    var x = item.Title.Split('–');
-                    var list = new List<string> {Regex.Replace(x[1], Re1 + Re2 + Re3, "")
-                    };
-                    SongItem trackItem = new SongItem(StripString(x[0], Pattern), result[0].Replace("Label: ", ""), Helper.GetMonth(result[1].Replace("Release Date: ", "")), list);
-                    _songItems.Add(trackItem);
-                }
-                else
-                {
-                    var list = new List<string> {Regex.Replace(result[2], Re1 + Re2 + Re3, "")
-                    };
-                    SongItem trackItem = new SongItem(StripString(item.Title, Pattern), result[0].Replace("Label: ", ""), Helper.GetMonth(result[1].Replace("Release Date: ", "")), list);
-                    _songItems.Add(trackItem);
-                }
-
-                //                Console.WriteLine(StripString(item.Title, PATTERN) + ":\n" + StripString(item.Content, HTML_TAG_PATTERN)
-                //                                      .Replace("The post " + item.Title + " appeared first on Hardstyle-Releases.com.",
-                //                                          ""));
-            }
-        }
 
         public static async Task<FullTrack> GetFullTrackAsync(string searchTerm)
         {
@@ -162,13 +109,6 @@ namespace SpotifyPlaylistManager
             return Task.CompletedTask;
         }
 
-        private static string StripString(string inputString, string pattern)
-        {
-            var s = Regex.Replace
-                (inputString, pattern, string.Empty);
-            return Regex.Replace(s, @"^\s+$[\r\n]*", string.Empty, RegexOptions.Multiline);
-        }
-
         private void BtnCreateAndSetPlaylists_Click(object sender, EventArgs e)
         {
             JsonHandler.SetMonthPlaylistId();
@@ -188,9 +128,9 @@ namespace SpotifyPlaylistManager
             return Task.WhenAll(listOfTasks);
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private async void MainForm_Load(object sender, EventArgs e)
         {
-            Feed();
+            _songItems = await GenreReleaseHandler.Feed().ConfigureAwait(false);
             SpotifyInit();
         }
 
@@ -227,14 +167,17 @@ namespace SpotifyPlaylistManager
         {
             TrackList = new List<FullTrack>();
             TackListPanel.Controls.Clear();
-            List<Task> listOfTasks = new List<Task>();
+            var listOfTasks = new List<Task>();
             foreach (var songItem in _songItems)
             {
                 foreach (var track in songItem.TrackList)
                 {
                     Console.WriteLine(@"Full track name: " + track);
                     Console.WriteLine(@"Full Artist name: " + songItem.Artist);
-                    var fullTrack = await GetFullTrackAsync(track.Replace("(Ft.", "").Replace("(With ", "") + " " + songItem.Artist.Replace("&", ",").Replace("(Ft.", "")).ConfigureAwait(true);
+                    var fullTrack =
+                        await GetFullTrackAsync(track.Replace("(Ft.", "").Replace("(With ", "") + " " +
+                                                songItem.Artist.Replace("&", ",").Replace("(Ft.", ""))
+                            .ConfigureAwait(true);
 
                     try
                     {

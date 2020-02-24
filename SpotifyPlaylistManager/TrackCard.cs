@@ -19,12 +19,6 @@ namespace SpotifyPlaylistManager
             _track = track;
         }
 
-        private void TrackCard_MouseHover(object sender, EventArgs e)
-        {
-            //radPopupEditor1.PopupForm.ShowPopup(new Rectangle(new Point(Cursor.Position.X,Cursor.Position.Y-radPopupContainer1.Height), new Size(radPopupContainer1.Width,radPopupContainer1.Height)));
-            Console.WriteLine("hover");
-        }
-
         private void TrackCard_DoubleClick(object sender, EventArgs e)
         {
             radPopupContainer1.Show();

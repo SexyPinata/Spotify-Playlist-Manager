@@ -125,7 +125,6 @@
             this.Size = new System.Drawing.Size(160, 235);
             this.Load += new System.EventHandler(this.TrackCard_Load);
             this.DoubleClick += new System.EventHandler(this.TrackCard_DoubleClick);
-            this.MouseHover += new System.EventHandler(this.TrackCard_MouseHover);
             ((System.ComponentModel.ISupportInitialize)(this.AlbumImage)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.radPopupEditor1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.radPopupContainer1)).EndInit();

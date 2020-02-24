@@ -184,7 +184,7 @@
             // 
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -195,14 +195,14 @@
             this.Controls.Add(this.TackListPanel);
             this.Controls.Add(this.BtnCreateAndSetPlaylists);
             this.Controls.Add(this.button1);
-            this.Name = "Form1";
+            this.Name = "MainForm";
             // 
             // 
             // 
             this.RootElement.ApplyShapeToControl = true;
-            this.Text = "Form1";
+            this.Text = "MainForm";
             this.ThemeName = "VisualStudio2012Dark";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.switchAddToSpotify)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.PlaylistButton)).EndInit();
             this.contextMenuStrip1.ResumeLayout(false);
