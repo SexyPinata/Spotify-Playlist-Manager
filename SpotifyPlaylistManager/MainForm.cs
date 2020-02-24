@@ -6,7 +6,6 @@ using SpotifyAPI.Web.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -19,7 +18,7 @@ namespace SpotifyPlaylistManager
     {
         public static SpotifyWebAPI Api = new SpotifyWebAPI();
 
-        public static string UserId = null;
+        public static string UserId;
 
         private const string ClientId = "0b77d4294b49451bba2571fa3d09ae46";
 
@@ -40,7 +39,7 @@ namespace SpotifyPlaylistManager
         private static List<SongItem> _songItems;
 
         // White Space 1
-        private List<FullTrack> _trackList = new List<FullTrack>();
+        public List<FullTrack> TrackList = new List<FullTrack>();
 
         public MainForm()
         {
@@ -89,10 +88,10 @@ namespace SpotifyPlaylistManager
             }
         }
 
-        public static async Task<FullTrack> GetFullTrack(string searchTerm)
+        public static async Task<FullTrack> GetFullTrackAsync(string searchTerm)
         {
-            SearchItem item = await Api.SearchItemsAsync(searchTerm.Replace("#", ""), SearchType.All).ConfigureAwait(false);
-            Console.WriteLine("Searched for: " + searchTerm);
+            var item = await Api.SearchItemsAsync(searchTerm.Replace("#", ""), SearchType.All).ConfigureAwait(false);
+            Console.WriteLine(@"Searched for: " + searchTerm);
             try
             {
                 item.Tracks.Items.Sort();
@@ -143,7 +142,7 @@ namespace SpotifyPlaylistManager
             return playlist.Items.Count > 0 && playlist.Items.Any(playlistTrack => playlistTrack.Track.Id.Equals(trackId));
         }
 
-        public Task CreateTrackCardPanel(PlaylistTrack track)
+        public Task CreateTrackCardPanelAsync(PlaylistTrack track)
         {
             var trackCard = new TrackCard(track.Track);
             trackCard.AlbumImage.LoadAsync(track.Track.Album.Images.FirstOrDefault()?.Url);
@@ -153,7 +152,7 @@ namespace SpotifyPlaylistManager
             return Task.CompletedTask;
         }
 
-        public Task CreateTrackCardPanel(FullTrack track)
+        public Task CreateTrackCardPanelAsync(FullTrack track)
         {
             var trackCard = new TrackCard(track);
             trackCard.AlbumImage.LoadAsync(track.Album.Images.FirstOrDefault()?.Url);
@@ -175,23 +174,18 @@ namespace SpotifyPlaylistManager
             JsonHandler.SetMonthPlaylistId();
         }
 
-        private async void Button1_Click(object sender, EventArgs e)
-        {
-            await PopulateTask().ConfigureAwait(false);
-        }
+        private async void Button1_Click(object sender, EventArgs e) => await PopulateTaskAsync().ConfigureAwait(false);
 
         private void ContextMenuStrip1_Opening(object sender, CancelEventArgs e)
         {
         }
 
-        private async Task DisplayPlaylistsSongs(FullPlaylist playlist)
+        private Task DisplayPlaylistsSongsAsync(FullPlaylist playlist)
         {
             TackListPanel.Controls.Clear();
-            List<Task> listOfTasks = new List<Task>();
+            var listOfTasks = playlist.Tracks.Items.Select(CreateTrackCardPanelAsync).ToList();
 
-            foreach (var track in playlist.Tracks.Items)
-                listOfTasks.Add(CreateTrackCardPanel(track));
-            await Task.WhenAll(listOfTasks).ConfigureAwait(false);
+            return Task.WhenAll(listOfTasks);
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -205,13 +199,9 @@ namespace SpotifyPlaylistManager
             PopulatePlaylists();
         }
 
-        private void PlaylistPanel_Click(object sender, EventArgs e)
-        {
-        }
-
         private void PopulatePlaylists()
         {
-            var playlists = Api.GetUserPlaylists(UserId, 50, 0);
+            var playlists = Api.GetUserPlaylists(UserId, 50);
             if (playlists == null) return;
             foreach (var playlist in playlists.Items)
             {
@@ -233,45 +223,41 @@ namespace SpotifyPlaylistManager
             }
         }
 
-        private async Task PopulateTask()
+        private async Task PopulateTaskAsync()
         {
-            _trackList = new List<FullTrack>();
+            TrackList = new List<FullTrack>();
             TackListPanel.Controls.Clear();
             List<Task> listOfTasks = new List<Task>();
             foreach (var songItem in _songItems)
             {
                 foreach (var track in songItem.TrackList)
                 {
-                    Console.WriteLine("Full track name: " + track);
-                    Console.WriteLine("Full Artist name: " + songItem.Artist);
-                    var fullTrack = await GetFullTrack(track.Replace("(Ft.", "").Replace("(With ", "") + " " + songItem.Artist.Replace("&", ",").Replace("(Ft.", "")).ConfigureAwait(true);
+                    Console.WriteLine(@"Full track name: " + track);
+                    Console.WriteLine(@"Full Artist name: " + songItem.Artist);
+                    var fullTrack = await GetFullTrackAsync(track.Replace("(Ft.", "").Replace("(With ", "") + " " + songItem.Artist.Replace("&", ",").Replace("(Ft.", "")).ConfigureAwait(true);
 
                     try
                     {
-                        listOfTasks.Add(CreateTrackCardPanel(fullTrack));
+                        listOfTasks.Add(CreateTrackCardPanelAsync(fullTrack));
                         var first = fullTrack.Album.Images.FirstOrDefault();
 
-                        if (first != null) Console.WriteLine(first.Height + " " + first.Width);
+                        if (first != null) Console.WriteLine(first.Height + @" " + first.Width);
                         if (!TrackDupe(JsonHandler.GetMonthPlaylistId(songItem.ReleaseDate),
                             fullTrack.Uri))
                         {
-                            _trackList.Add(fullTrack);
+                            TrackList.Add(fullTrack);
                             //Api.AddPlaylistTrack(jsonHandler.GetMonthPlaylistId(songItem.ReleaseDate),
                             //    fullTrack.Uri);
                         }
                     }
                     catch (Exception exception)
                     {
-                        Console.WriteLine("Error with track: " + track);
+                        Console.WriteLine(@"Error with track: " + track);
                         Console.WriteLine(exception);
                     }
                 }
             }
             await Task.WhenAll(listOfTasks).ConfigureAwait(false);
-        }
-
-        private void RadPopupEditor1_Click(object sender, EventArgs e)
-        {
         }
 
         private void Tes2ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -284,28 +270,26 @@ namespace SpotifyPlaylistManager
 
         private async void X_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            Label plSender = sender as Label;
-            var playlistId = plSender.Name;
-            var playlist = await Api.GetPlaylistAsync(playlistId);
-            await DisplayPlaylistsSongs(playlist).ConfigureAwait(false);
+            var plSender = sender as Label;
+            var playlistId = plSender?.Name;
+            var playlist = await Api.GetPlaylistAsync(playlistId).ConfigureAwait(true);
+            await DisplayPlaylistsSongsAsync(playlist).ConfigureAwait(false);
         }
 
-        private void X_MouseLeave(object sender, EventArgs e)
+        private static void X_MouseLeave(object sender, EventArgs e)
         {
-            var label = sender as Label;
-            label.ForeColor = Color.LightGray;
+            if (sender is Label label) label.ForeColor = Color.LightGray;
         }
 
-        private void XOnMouseEnter(object sender, EventArgs e)
+        private static void XOnMouseEnter(object sender, EventArgs e)
         {
-            var label = sender as Label;
-            label.ForeColor = Color.GhostWhite;
+            if (sender is Label label) label.ForeColor = Color.GhostWhite;
         }
 
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
             FullTrack m = new FullTrack();
-            CreateTrackCardPanel(m);
+            CreateTrackCardPanelAsync(m);
         }
     }
 }
