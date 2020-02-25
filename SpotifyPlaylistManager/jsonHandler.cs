@@ -9,6 +9,8 @@ namespace SpotifyPlaylistManager
 {
     public static class JsonHandler
     {
+        #region Methods
+
         public static string GetMonthPlaylistId(MainForm.Months month)
         {
             var s = Assembly.GetExecutingAssembly().Location;
@@ -28,5 +30,7 @@ namespace SpotifyPlaylistManager
             var serializer = new JsonSerializer();
             serializer.Serialize(file, playlistMonthIds);
         }
+
+        #endregion Methods
     }
 }

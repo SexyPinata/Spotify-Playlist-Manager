@@ -95,6 +95,7 @@
     </Compile>
     <Compile Include="Helper.cs" />
     <Compile Include="jsonHandler.cs" />
+    <Compile Include="PlaylistInfo.cs" />
     <Compile Include="PlaylistMonthId.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

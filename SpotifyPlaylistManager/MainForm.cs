@@ -1,34 +1,45 @@
-﻿using CodeHollow.FeedReader;
-using SpotifyAPI.Web;
-using SpotifyAPI.Web.Auth;
-using SpotifyAPI.Web.Enums;
-using SpotifyAPI.Web.Models;
+﻿using SpotifyAPI.Web.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using Image = SpotifyAPI.Web.Models.Image;
 
 namespace SpotifyPlaylistManager
 {
     public partial class MainForm : Telerik.WinControls.UI.RadForm
     {
-        private static List<SongItem> _songItems;
+        #region Fields
 
         // White Space 1
         public List<FullTrack> TrackList = new List<FullTrack>();
+
+        private static List<SongItem> _songItems;
+
+        #endregion Fields
+
+        #region Constructors
 
         public MainForm()
         {
             InitializeComponent();
         }
 
+        #endregion Constructors
+
+
+
+        #region Enums
+
         public enum Months { None, January, February, Mars, April, May, June, July, August, September, October, November, December };
+
+        #endregion Enums
+
+
+
+        #region Methods
 
         public Task CreateTrackCardPanelAsync(PlaylistTrack track)
         {
@@ -48,6 +59,22 @@ namespace SpotifyPlaylistManager
 
             TackListPanel.Controls.Add(trackCard);
             return Task.CompletedTask;
+        }
+
+        private static void X_MouseLeave(object sender, EventArgs e)
+        {
+            if (sender is Label label) label.ForeColor = Color.LightGray;
+        }
+
+        private static void XOnMouseEnter(object sender, EventArgs e)
+        {
+            if (sender is Label label) label.ForeColor = Color.GhostWhite;
+        }
+
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            FullTrack m = new FullTrack();
+            CreateTrackCardPanelAsync(m);
         }
 
         private void BtnCreateAndSetPlaylists_Click(object sender, EventArgs e)
@@ -123,10 +150,11 @@ namespace SpotifyPlaylistManager
                     try
                     {
                         listOfTasks.Add(CreateTrackCardPanelAsync(fullTrack));
+
                         var first = fullTrack.Album.Images.FirstOrDefault();
 
                         if (first != null) Console.WriteLine(first.Height + @" " + first.Width);
-                        if (!SpotifyEasyApiHandler.TrackDupe(JsonHandler.GetMonthPlaylistId(songItem.ReleaseDate),
+                        if (!SpotifyEasyApiHandler.CheckPlaylistTrackDupe(JsonHandler.GetMonthPlaylistId(songItem.ReleaseDate),
                             fullTrack.Uri))
                         {
                             TrackList.Add(fullTrack);
@@ -160,20 +188,6 @@ namespace SpotifyPlaylistManager
             await DisplayPlaylistsSongsAsync(playlist).ConfigureAwait(false);
         }
 
-        private static void X_MouseLeave(object sender, EventArgs e)
-        {
-            if (sender is Label label) label.ForeColor = Color.LightGray;
-        }
-
-        private static void XOnMouseEnter(object sender, EventArgs e)
-        {
-            if (sender is Label label) label.ForeColor = Color.GhostWhite;
-        }
-
-        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
-        {
-            FullTrack m = new FullTrack();
-            CreateTrackCardPanelAsync(m);
-        }
+        #endregion Methods
     }
 }
