@@ -3,6 +3,7 @@ using System;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using Telerik.WinControls.UI;
 using static System.String;
 using Cursor = System.Windows.Forms.Cursor;
 
@@ -10,7 +11,14 @@ namespace SpotifyPlaylistManager
 {
     public partial class TrackCard : UserControl
     {
+        #region Fields
+
         private readonly FullTrack _track;
+        private FullTrackCard _fullTrackCard;
+
+        #endregion Fields
+
+        #region Constructors
 
         public TrackCard(FullTrack track)
         {
@@ -18,8 +26,21 @@ namespace SpotifyPlaylistManager
             _track = track;
         }
 
+        #endregion Constructors
+
+
+
+        #region Methods
+
         private void TrackCard_DoubleClick(object sender, EventArgs e)
         {
+            if (radPopupContainer1.Controls.Count > 0)
+            {
+                radPopupContainer1.Controls.Clear();
+            }
+            radPopupContainer1.Controls.Add(_fullTrackCard);
+            radPopupContainer1.Size = _fullTrackCard.Size;
+            radPopupContainer1.AutoScroll = false;
             radPopupContainer1.Show();
             radPopupContainer1.Visible = true;
             radPopupContainer1.Enabled = true;
@@ -30,23 +51,22 @@ namespace SpotifyPlaylistManager
             Console.WriteLine("Double click");
         }
 
-        private void TrackCard_Load(object sender, EventArgs e)
+        private async void TrackCard_Load(object sender, EventArgs e)
         {
             var artistNameList = _track.Artists.Select(simpleArtist => simpleArtist.Name).ToList();
             radPopupEditor1.Hide();
-            var fullTrackCard = new FullTrackCard
+            _fullTrackCard = new FullTrackCard
             {
                 TrackName = { Text = _track.Name },
                 Album = { Text = _track.Album.Name },
                 ReleaseDate = { Text = _track.Album.ReleaseDate },
                 Artist = { Text = Join(", ", artistNameList) },
                 Popularity = { Value1 = _track.Popularity },
-                label1 = { Text = Join(", ", SpotifyEasyApiHandler.GetGenres(_track)) }
+                label1 = { Text = Join(", ", await SpotifyEasyApiHandler.GetGenresAsync(_track).ConfigureAwait(false)) }
             };
-            fullTrackCard.pictureBox1.Load(AlbumImage.ImageLocation);
-            radPopupContainer1.Controls.Add(fullTrackCard);
-            radPopupContainer1.Size = fullTrackCard.Size;
-            radPopupContainer1.AutoScroll = false;
+            _fullTrackCard.pictureBox1.Load(AlbumImage.ImageLocation);
         }
+
+        #endregion Methods
     }
 }

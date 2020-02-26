@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            Telerik.WinControls.ThemeSource themeSource1 = new Telerik.WinControls.ThemeSource();
+            Telerik.WinControls.ThemeSource themeSource3 = new Telerik.WinControls.ThemeSource();
             this.AlbumImage = new System.Windows.Forms.PictureBox();
             this.TrackName = new System.Windows.Forms.Label();
             this.radPopupEditor1 = new Telerik.WinControls.UI.RadPopupEditor();
@@ -107,11 +107,12 @@
             this.radPopupContainer1.PanelContainer.Size = new System.Drawing.Size(254, 510);
             this.radPopupContainer1.Size = new System.Drawing.Size(256, 512);
             this.radPopupContainer1.TabIndex = 3;
+
             // 
             // radThemeManager1
             // 
             this.radThemeManager1.LoadedThemes.AddRange(new Telerik.WinControls.ThemeSource[] {
-            themeSource1});
+            themeSource3});
             // 
             // TrackCard
             // 

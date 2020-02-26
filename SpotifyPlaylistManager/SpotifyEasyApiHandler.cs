@@ -54,9 +54,9 @@ namespace SpotifyPlaylistManager
                 item.Tracks.Items.FirstOrDefault(); //How many results are there in total? NOTE: item.Tracks = item.Artists = null
         }
 
-        public static List<string> GetGenres(FullTrack track)
+        public static async Task<List<string>> GetGenresAsync(FullTrack track)
         {
-            var fullArtist = Api.GetArtist(track.Artists.FirstOrDefault()?.Id);
+            var fullArtist = await Api.GetArtistAsync(track.Artists.FirstOrDefault()?.Id).ConfigureAwait(false);
             return fullArtist.Genres;
         }
 

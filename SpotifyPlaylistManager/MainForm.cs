@@ -41,7 +41,7 @@ namespace SpotifyPlaylistManager
 
         #region Methods
 
-        public Task CreateTrackCardPanelAsync(PlaylistTrack track)
+        public async Task<Task> CreateTrackCardPanelAsync(PlaylistTrack track)
         {
             var trackCard = new TrackCard(track.Track);
             trackCard.AlbumImage.LoadAsync(track.Track.Album.Images.FirstOrDefault()?.Url);
@@ -82,7 +82,9 @@ namespace SpotifyPlaylistManager
             JsonHandler.SetMonthPlaylistId();
         }
 
-        private async void Button1_Click(object sender, EventArgs e) => await PopulateTaskAsync().ConfigureAwait(false);
+        private async void Button1_Click(object sender, EventArgs e)
+        {
+        }
 
         private void ContextMenuStrip1_Opening(object sender, CancelEventArgs e)
         {
@@ -113,7 +115,7 @@ namespace SpotifyPlaylistManager
             if (playlists == null) return;
             foreach (var playlist in playlists.Items)
             {
-                Label x = new Label
+                var x = new Label
                 {
                     BorderStyle = BorderStyle.FixedSingle,
                     ForeColor = Color.LightGray
@@ -131,45 +133,9 @@ namespace SpotifyPlaylistManager
             }
         }
 
-        private async Task PopulateTaskAsync()
+        private async Task populateTrackCardPanelAsync()
         {
-            TrackList = new List<FullTrack>();
             TackListPanel.Controls.Clear();
-            var listOfTasks = new List<Task>();
-            foreach (var songItem in _songItems)
-            {
-                foreach (var track in songItem.TrackList)
-                {
-                    Console.WriteLine(@"Full track name: " + track);
-                    Console.WriteLine(@"Full Artist name: " + songItem.Artist);
-                    var fullTrack =
-                        await SpotifyEasyApiHandler.GetFullTrackAsync(track.Replace("(Ft.", "").Replace("(With ", "") + " " +
-                                                songItem.Artist.Replace("&", ",").Replace("(Ft.", ""))
-                            .ConfigureAwait(true);
-
-                    try
-                    {
-                        listOfTasks.Add(CreateTrackCardPanelAsync(fullTrack));
-
-                        var first = fullTrack.Album.Images.FirstOrDefault();
-
-                        if (first != null) Console.WriteLine(first.Height + @" " + first.Width);
-                        if (!SpotifyEasyApiHandler.CheckPlaylistTrackDupe(JsonHandler.GetMonthPlaylistId(songItem.ReleaseDate),
-                            fullTrack.Uri))
-                        {
-                            TrackList.Add(fullTrack);
-                            //Api.AddPlaylistTrack(jsonHandler.GetMonthPlaylistId(songItem.ReleaseDate),
-                            //    fullTrack.Uri);
-                        }
-                    }
-                    catch (Exception exception)
-                    {
-                        Console.WriteLine(@"Error with track: " + track);
-                        Console.WriteLine(exception);
-                    }
-                }
-            }
-            await Task.WhenAll(listOfTasks).ConfigureAwait(false);
         }
 
         private void Tes2ToolStripMenuItem_Click(object sender, EventArgs e)
