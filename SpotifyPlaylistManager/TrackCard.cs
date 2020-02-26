@@ -28,8 +28,6 @@ namespace SpotifyPlaylistManager
 
         #endregion Constructors
 
-
-
         #region Methods
 
         private void TrackCard_DoubleClick(object sender, EventArgs e)
@@ -55,16 +53,23 @@ namespace SpotifyPlaylistManager
         {
             var artistNameList = _track.Artists.Select(simpleArtist => simpleArtist.Name).ToList();
             radPopupEditor1.Hide();
-            _fullTrackCard = new FullTrackCard
+            try
             {
-                TrackName = { Text = _track.Name },
-                Album = { Text = _track.Album.Name },
-                ReleaseDate = { Text = _track.Album.ReleaseDate },
-                Artist = { Text = Join(", ", artistNameList) },
-                Popularity = { Value1 = _track.Popularity },
-                label1 = { Text = Join(", ", await SpotifyEasyApiHandler.GetGenresAsync(_track).ConfigureAwait(false)) }
-            };
-            _fullTrackCard.pictureBox1.Load(AlbumImage.ImageLocation);
+                _fullTrackCard = new FullTrackCard
+                {
+                    TrackName = { Text = _track.Name },
+                    Album = { Text = _track.Album.Name },
+                    ReleaseDate = { Text = _track.Album.ReleaseDate },
+                    Artist = { Text = Join(", ", artistNameList) },
+                    Popularity = { Value1 = _track.Popularity },
+                    label1 = { Text = Join(", ", await SpotifyEasyApiHandler.GetGenresAsync(_track).ConfigureAwait(false)) }
+                };
+                _fullTrackCard.pictureBox1.LoadAsync(AlbumImage.ImageLocation);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+            }
         }
 
         #endregion Methods
