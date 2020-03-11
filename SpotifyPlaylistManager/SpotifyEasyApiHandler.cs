@@ -21,8 +21,6 @@ namespace SpotifyPlaylistManager
 
         #endregion Fields
 
-
-
         #region Methods
 
         public static bool CheckPlaylistTrackDupe(string playlistId, string trackId)
@@ -34,7 +32,32 @@ namespace SpotifyPlaylistManager
         public static Paging<SimplePlaylist> GetCurrentUsersPlaylists()
         {
             var playlists = Api.GetUserPlaylists(UserId, 50);
+
             return playlists;
+        }
+
+        public static async Task<List<FullTrack>> GetFullPlaylistAsync(string playlistId)
+        {
+            var fullPlaylist = new List<FullTrack>();
+            var playlist = await Api.GetPlaylistTracksAsync(playlistId);
+            Console.WriteLine("playlist total = " + playlist.Total);
+            var numOfPages = Math.Ceiling((double)playlist.Total / 100);
+            Console.WriteLine(numOfPages);
+            for (var pageIndex = 1; pageIndex <= numOfPages; pageIndex++)
+            {
+                var offset = (pageIndex - 1) * 100;
+                Console.WriteLine(offset);
+                var localPlaylist = await Api.GetPlaylistTracksAsync(playlistId, "", 100, offset, "").ConfigureAwait(false);
+                Console.WriteLine("localPlaylist total = "+localPlaylist.Total);
+                foreach (var localPlaylistItem in localPlaylist.Items)
+                {
+                    fullPlaylist.Add(localPlaylistItem.Track);
+                    Console.WriteLine(localPlaylistItem.Track.Name);
+                }
+                Console.WriteLine(fullPlaylist.Count);
+            }
+
+            return fullPlaylist;
         }
 
         public static async Task<FullTrack> GetFullTrackAsync(string searchTerm)

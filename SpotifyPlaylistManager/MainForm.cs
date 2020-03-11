@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Telerik.WinControls;
 
 namespace SpotifyPlaylistManager
 {
@@ -31,7 +32,22 @@ namespace SpotifyPlaylistManager
 
         #region Enums
 
-        public enum Months { None, January, February, Mars, April, May, June, July, August, September, October, November, December };
+        public enum Months
+        {
+            None,
+            January,
+            February,
+            Mars,
+            April,
+            May,
+            June,
+            July,
+            August,
+            September,
+            October,
+            November,
+            December
+        };
 
         #endregion Enums
 
@@ -86,10 +102,10 @@ namespace SpotifyPlaylistManager
         {
         }
 
-        private Task DisplayPlaylistsSongsAsync(FullPlaylist playlist)
+        private Task DisplayPlaylistsSongsAsync(List<FullTrack> playlist)
         {
             TackListPanel.Controls.Clear();
-            var listOfTasks = playlist.Tracks.Items.Select(CreateTrackCardPanelAsync).ToList();
+            var listOfTasks = playlist.Select(CreateTrackCardPanelAsync).ToList();
 
             return Task.WhenAll(listOfTasks);
         }
@@ -142,63 +158,63 @@ namespace SpotifyPlaylistManager
         {
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void X_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            float acousticness = 0, danceability = 0, energy = 0, instrumentalness = 0, loudness = 0, valence = 0, tempo = 0;
             var plSender = sender as Label;
             var playlistId = plSender?.Name;
-            var playlist = await SpotifyEasyApiHandler.Api.GetPlaylistAsync(playlistId).ConfigureAwait(true);
+            Console.WriteLine(playlistId);
+            var playlist = await SpotifyEasyApiHandler.GetFullPlaylistAsync(playlistId);
             await DisplayPlaylistsSongsAsync(playlist).ConfigureAwait(false);
             foreach (var item in Enum.GetValues(typeof(PlaylistInfoHelper.AudioFeature)))
             {
                 switch (Convert.ToInt32(item))
                 {
                     case 0:
-                        acousticness =
-                            await PlaylistInfoHelper.GetAverageAsync(playlist, PlaylistInfoHelper.AudioFeature.Acousticness)
-                                .ConfigureAwait(false);
+                        await PlaylistInfoHelper
+                            .GetAverageAsync(playlist, PlaylistInfoHelper.AudioFeature.Acousticness)
+                            .ConfigureAwait(false);
                         break;
 
                     case 1:
-                        danceability =
-                            await PlaylistInfoHelper.GetAverageAsync(playlist, PlaylistInfoHelper.AudioFeature.Danceability)
-                                .ConfigureAwait(false);
+                        var danceability = await PlaylistInfoHelper
+                            .GetAverageAsync(playlist, PlaylistInfoHelper.AudioFeature.Danceability)
+                            .ConfigureAwait(false);
                         DanceabilityProgress.Value1 = Convert.ToInt32(danceability);
                         break;
 
                     case 2:
-                        energy =
-                            await PlaylistInfoHelper.GetAverageAsync(playlist, PlaylistInfoHelper.AudioFeature.Energy)
-                                .ConfigureAwait(false);
+                        var energy = await PlaylistInfoHelper.GetAverageAsync(playlist, PlaylistInfoHelper.AudioFeature.Energy)
+                            .ConfigureAwait(false);
                         EnergyProgress.Value1 = Convert.ToInt32(energy);
                         break;
 
                     case 3:
-                        instrumentalness =
-                            await PlaylistInfoHelper
-                                .GetAverageAsync(playlist, PlaylistInfoHelper.AudioFeature.Instrumentalness)
-                                .ConfigureAwait(false);
+                        var instrumentalness = await PlaylistInfoHelper
+                            .GetAverageAsync(playlist, PlaylistInfoHelper.AudioFeature.Instrumentalness)
+                            .ConfigureAwait(false);
                         IntrumentalnessProgress.Value1 = Convert.ToInt32(instrumentalness);
                         break;
 
                     case 4:
-                        loudness =
-                            await PlaylistInfoHelper.GetAverageAsync(playlist, PlaylistInfoHelper.AudioFeature.Loudness)
-                                .ConfigureAwait(false);
+                        var loudness = await PlaylistInfoHelper.GetAverageAsync(playlist, PlaylistInfoHelper.AudioFeature.Loudness)
+                            .ConfigureAwait(false);
                         LoudnessProgress.Value1 = Convert.ToInt32(loudness + 60);
                         break;
 
                     case 5:
-                        valence =
-                            await PlaylistInfoHelper.GetAverageAsync(playlist, PlaylistInfoHelper.AudioFeature.Valence)
-                                .ConfigureAwait(false);
+                        var valence = await PlaylistInfoHelper.GetAverageAsync(playlist, PlaylistInfoHelper.AudioFeature.Valence)
+                            .ConfigureAwait(false);
                         ValenceProgress.Value1 = Convert.ToInt32(valence);
                         break;
 
                     case 6:
-                        tempo =
-                            await PlaylistInfoHelper.GetAverageAsync(playlist, PlaylistInfoHelper.AudioFeature.Tempo)
-                                .ConfigureAwait(false);
+                        var tempo = await PlaylistInfoHelper.GetAverageAsync(playlist, PlaylistInfoHelper.AudioFeature.Tempo)
+                            .ConfigureAwait(false);
                         TempProgress.Value1 = Convert.ToInt32(tempo);
                         break;
 
@@ -206,60 +222,14 @@ namespace SpotifyPlaylistManager
                         throw new ArgumentOutOfRangeException(nameof(item), item, null);
                 }
             }
-            PlaylistInfo playlistInfo = new PlaylistInfo(acousticness, danceability, energy, instrumentalness, loudness, valence, tempo, default, playlist);
+
+            // PlaylistInfo playlistInfo = new PlaylistInfo(acousticness, danceability, energy, instrumentalness, loudness,
+            //     valence, tempo, default, playlist);
         }
 
         #endregion Methods
 
-        private void DanceabilityLbl_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void EnergyLbl_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void InstrumentalnessLbl_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void LoudnessLbl_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void radCollapsiblePanel1_Expanded(object sender, EventArgs e)
-        {
-        }
-
-        private void radCollapsiblePanel1_PanelContainer_Paint(object sender, PaintEventArgs e)
-        {
-        }
-
-        private void radProgressBar1_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void radProgressBar2_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void radProgressBar3_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void radProgressBar4_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void radProgressBar5_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void TempoLbl_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void ValenceLbl_Click(object sender, EventArgs e)
+        private void TackListPanel_Paint(object sender, PaintEventArgs e)
         {
         }
     }

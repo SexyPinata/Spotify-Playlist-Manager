@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using SpotifyAPI.Web.Models;
 using Telerik.WinControls.UI;
@@ -62,12 +63,12 @@ namespace SpotifyPlaylistManager
 
         #region Methods
 
-        public static async Task<float> GetAverageAsync(FullPlaylist playlist, AudioFeature feature)
+        public static async Task<float> GetAverageAsync(List<FullTrack> playlist, AudioFeature feature)
         {
             var total = 0f;
-            foreach (var playlistTrack in playlist.Tracks.Items)
+            foreach (var playlistTrack in playlist)
             {
-                var audioFeatures = await SpotifyEasyApiHandler.Api.GetAudioFeaturesAsync(playlistTrack.Track.Id).ConfigureAwait(false);
+                var audioFeatures = await SpotifyEasyApiHandler.Api.GetAudioFeaturesAsync(playlistTrack.Id).ConfigureAwait(false);
                 total += feature switch
                 {
                     AudioFeature.Acousticness => (int)Math.Round(audioFeatures.Acousticness * 100),
@@ -80,8 +81,8 @@ namespace SpotifyPlaylistManager
                     _ => throw new ArgumentOutOfRangeException(nameof(feature), feature, null)
                 };
             }
-            Console.WriteLine("Average: " + total / playlist.Tracks.Items.Count + " of type: " + feature);
-            return total / playlist.Tracks.Items.Count;
+            Console.WriteLine("Average: " + total / playlist.Count + " of type: " + feature);
+            return total / playlist.Count;
         }
 
         #endregion Methods
